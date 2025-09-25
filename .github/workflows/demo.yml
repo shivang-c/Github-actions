@@ -6,11 +6,16 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    outputs:
+      script-file: ${{ steps.publish.outputs.script-file }}
     steps:
       - name: Get code
         uses: actions/checkout@v3
       - name: Install dependencies
         run: npm ci
+      - name: Publish JS Filename
+        id: publish
+        run: find dist/assets/*.js -type f -execdir echo 'script-file={}' >> $GITHUB_OUTPUT ';'
       - name: Lint code
         run: npm run lint
       - name: Test code
@@ -23,6 +28,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Install dependencies
         run: npm ci
+      - name: Output filename
+        run: echo "${{ needs.test.outputs.script-file }}"
       - name: Build website
         run: npm run build
       - name: Upload artifacts
